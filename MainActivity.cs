@@ -29,7 +29,7 @@ using SourceAFIS.General;
 namespace FingerDroid
 {
 	[Activity(Label = "FingerDroid", MainLauncher = true, Icon = "@drawable/icon")]
-	public class MainActivity : Activity,Android.Hardware.Camera.IPictureCallback , Java.Lang.IRunnable //, Android.Hardware.Camera.IPreviewCallback
+	public class MainActivity : Activity,Android.Hardware.Camera.IPictureCallback , Java.Lang.IRunnable ,TextToSpeech.IOnInitListener//, Android.Hardware.Camera.IPreviewCallback
 	{
 		int DELAY_MILLIS = 1000;
 
