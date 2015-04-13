@@ -47,6 +47,8 @@ namespace FingerDroid
 		TextView result = null;
 		TextView frameView = null;
 		List<MyPerson> database = null;
+
+		TextToSpeech tts = null;
 	
 		// Initialize path to images
 		static readonly string ImagePath = "/mnt/ext_sdcard/fingerprints/";
@@ -93,6 +95,8 @@ namespace FingerDroid
 			iv.SetImageResource (Resource.Drawable.Icon);
 			frameView = relaView.FindViewById<TextView> (Resource.Id.textView1);
 			//SeekBar sk = new SeekBar (this);
+
+			tts = new TextToSpeech (this, this);
 
 			FrameLayout fl = new FrameLayout(this);
 			LinearLayout ll = new LinearLayout(this);
@@ -188,8 +192,7 @@ namespace FingerDroid
 				else
 					hdler.RemoveCallbacks(this);
 			}; 
-
-
+				
 
 			//zoom放大
 //			sk.ProgressChanged += delegate {
@@ -348,6 +351,17 @@ namespace FingerDroid
 			}
 		} */
 
+		public void OnInit (OperationResult status)
+		{
+			/*如果装载TTS引擎成功*/  
+			if(status.Equals(OperationResult.Success)){  
+				/*设置使用某种语言朗读*/  
+				tts.SetLanguage(Java.Util.Locale.Chinese);    
+			}else{/*没有TTS引擎*/  
+				tv.Text = "暂不支持TTS";
+			}  
+		}
+
 		// Take fingerprint image file and create Person object from the image
 		static MyPerson Enroll(Bitmap image, string name)
 		{
@@ -384,6 +398,7 @@ namespace FingerDroid
 
 		void StartCore()
 		{
+			tts.Speak ("叮咚", QueueMode.Flush, null);
 			if (isIdentify && System.IO.File.Exists (ImagePath + "database.dat")) {  //指纹识别
 				// Enroll visitor with unknown identity
 				//MyPerson probe = Enroll(ImagePath + "t1.BMP", "##Visitor##");
@@ -395,6 +410,7 @@ namespace FingerDroid
 				if (match == null) {
 					Console.WriteLine ("No matching person found.");
 					result.Text = "无匹配指纹！";
+					tts.Speak ("不认识你", QueueMode.Flush, null);
 				} else {
 					// Print out any non-null result
 					Console.WriteLine ("Probe {0} matches registered person {1}", probe.Name, match.Name);
@@ -404,6 +420,7 @@ namespace FingerDroid
 					float score = Afis.Verify (probe, match);
 					Console.WriteLine ("Similarity score between {0} and {1} = {2:F3}", probe.Name, match.Name, score);
 					tv.Text = "识别完成。。。";
+					tts.Speak (match.Name, QueueMode.Flush, null);
 					result.Text = "身份：" + match.Name + "\n匹配分数：" + score;
 				}
 			} else if (xuehao != null) { //指纹录入
