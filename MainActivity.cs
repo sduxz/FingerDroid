@@ -10,6 +10,7 @@ using System.Drawing;
 using Android.Util;
 using Android.Widget;
 using Android.Graphics;
+using Android.Speech.Tts;
 using System.IO;
 using System.Threading;
 using System.Linq;
