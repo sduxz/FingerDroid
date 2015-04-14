@@ -160,6 +160,17 @@
     <AndroidResource Include="Resources\drawable-xhdpi\Icon.png" />
     <AndroidResource Include="Resources\drawable-xxhdpi\Icon.png" />
     <AndroidResource Include="Resources\drawable-xxxhdpi\Icon.png" />
+    <AndroidResource Include="Resources\drawable-xhdpi\barcode_cancel_normal.png" />
+    <AndroidResource Include="Resources\drawable-xhdpi\barcode_cancel_pressed.png" />
+    <AndroidResource Include="Resources\drawable-xhdpi\barcode_local_pic_bg_pressed.9.png" />
+    <AndroidResource Include="Resources\drawable-xhdpi\botton_normal.9.png" />
+    <AndroidResource Include="Resources\drawable-xhdpi\danxuan_nor.png" />
+    <AndroidResource Include="Resources\drawable-xhdpi\danxuan_select.png" />
+    <AndroidResource Include="Resources\drawable-xhdpi\ic_add_friends.png" />
+    <AndroidResource Include="Resources\drawable-xhdpi\ic_addhabit.png" />
+    <AndroidResource Include="Resources\drawable-xhdpi\license_check.png" />
+    <AndroidResource Include="Resources\drawable-xhdpi\license_uncheck.png" />
+    <AndroidResource Include="Resources\drawable-xhdpi\record_photo_add_down.png" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Novell\Novell.MonoDroid.CSharp.targets" />
 </Project>

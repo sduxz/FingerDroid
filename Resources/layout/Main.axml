@@ -1,36 +1,77 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:minWidth="25px"
     android:minHeight="25px"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:id="@+id/relativeLayout1">
-    <ImageView
-        android:src="@android:drawable/ic_menu_gallery"
-        android:layout_width="wrap_content"
+    android:orientation="vertical"
+    android:id="@+id/baselayout">
+    <LinearLayout
+        android:orientation="horizontal"
+        android:minWidth="25px"
+        android:minHeight="25px"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/imageView1"
-        android:layout_alignParentBottom="true" />
-    <Switch
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textOn="自动"
-        android:textOff="手动"
-        android:id="@+id/switch1"
-        android:layout_alignParentRight="true" />
+        android:id="@+id/linearLayout1"
+        android:background="@android:color/white">
+        <Button
+            android:text="              抓取              "
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:id="@+id/takepicb" />
+        <Button
+            android:text="             录入              "
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:id="@+id/enrollbtn" />
+    </LinearLayout>
     <TextView
-        android:text=""
+        android:text="Text"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="20px"
+        android:id="@+id/statustext"
+        android:textColor="@android:color/holo_blue_light" />
+    <TextView
+        android:text="Text"
+        android:id="@+id/resulttext"
+        android:layout_width="match_parent"
+        android:textSize="30px"
+        android:layout_height="wrap_content"
+        android:textColor="@android:color/holo_red_light" />
+    <RelativeLayout
+        android:minWidth="25px"
+        android:minHeight="25px"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id="@+id/textView1"
-        android:layout_alignParentLeft="true" />
-    <Button
-        android:text="     课程     "
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/switch1"
-        android:id="@+id/button1"
-        android:layout_alignParentRight="true"
-        android:typeface="normal"
-        android:background="#ff66ef64" />
-</RelativeLayout>
+        android:id="@+id/relativeLayout1">
+        <ImageView
+            android:src="@android:drawable/ic_menu_gallery"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/imageView1"
+            android:layout_alignParentBottom="true" />
+        <Switch
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textOn="自动"
+            android:textOff="手动"
+            android:id="@+id/switch1"
+            android:layout_alignParentRight="true" />
+        <TextView
+            android:text="0"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/textView1"
+            android:layout_alignParentLeft="true" />
+        <Button
+            android:text="     课程     "
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/switch1"
+            android:id="@+id/button1"
+            android:layout_alignParentRight="true"
+            android:typeface="normal"
+            android:background="#ff66ef64" />
+    </RelativeLayout>
+</LinearLayout>
