@@ -24,4 +24,13 @@
         android:layout_height="wrap_content"
         android:id="@+id/textView1"
         android:layout_alignParentLeft="true" />
+    <Button
+        android:text="     课程     "
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/switch1"
+        android:id="@+id/button1"
+        android:layout_alignParentRight="true"
+        android:typeface="normal"
+        android:background="#ff66ef64" />
 </RelativeLayout>
