@@ -45,7 +45,40 @@ namespace FingerDroid
 		{
 			
 			// aapt resource value: 0x7f020000
-			public const int Icon = 2130837504;
+			public const int barcode_cancel_normal = 2130837504;
+			
+			// aapt resource value: 0x7f020001
+			public const int barcode_cancel_pressed = 2130837505;
+			
+			// aapt resource value: 0x7f020002
+			public const int barcode_local_pic_bg_normal = 2130837506;
+			
+			// aapt resource value: 0x7f020003
+			public const int barcode_local_pic_bg_pressed = 2130837507;
+			
+			// aapt resource value: 0x7f020004
+			public const int danxuan_nor = 2130837508;
+			
+			// aapt resource value: 0x7f020005
+			public const int danxuan_select = 2130837509;
+			
+			// aapt resource value: 0x7f020006
+			public const int ic_add_friends = 2130837510;
+			
+			// aapt resource value: 0x7f020007
+			public const int ic_addhabit = 2130837511;
+			
+			// aapt resource value: 0x7f020008
+			public const int Icon = 2130837512;
+			
+			// aapt resource value: 0x7f020009
+			public const int license_check = 2130837513;
+			
+			// aapt resource value: 0x7f02000a
+			public const int license_uncheck = 2130837514;
+			
+			// aapt resource value: 0x7f02000b
+			public const int record_photo_add_down = 2130837515;
 			
 			static Drawable()
 			{
@@ -61,37 +94,58 @@ namespace FingerDroid
 		{
 			
 			// aapt resource value: 0x7f050000
-			public const int baselayout = 2131034112;
+			public const int base2 = 2131034112;
 			
-			// aapt resource value: 0x7f05000a
-			public const int button1 = 2131034122;
+			// aapt resource value: 0x7f050008
+			public const int baselayout = 2131034120;
 			
-			// aapt resource value: 0x7f050003
-			public const int enrollbtn = 2131034115;
+			// aapt resource value: 0x7f050002
+			public const int button1 = 2131034114;
+			
+			// aapt resource value: 0x7f050006
+			public const int button2 = 2131034118;
 			
 			// aapt resource value: 0x7f050007
-			public const int imageView1 = 2131034119;
+			public const int button3 = 2131034119;
+			
+			// aapt resource value: 0x7f05000c
+			public const int enrollbtn = 2131034124;
+			
+			// aapt resource value: 0x7f05000e
+			public const int imageView1 = 2131034126;
 			
 			// aapt resource value: 0x7f050001
 			public const int linearLayout1 = 2131034113;
 			
-			// aapt resource value: 0x7f050006
-			public const int relativeLayout1 = 2131034118;
-			
 			// aapt resource value: 0x7f050005
-			public const int resulttext = 2131034117;
+			public const int linearLayout2 = 2131034117;
 			
 			// aapt resource value: 0x7f050004
-			public const int statustext = 2131034116;
+			public const int listView1 = 2131034116;
 			
-			// aapt resource value: 0x7f050008
-			public const int switch1 = 2131034120;
+			// aapt resource value: 0x7f05000d
+			public const int relativeLayout1 = 2131034125;
 			
-			// aapt resource value: 0x7f050002
-			public const int takepicb = 2131034114;
+			// aapt resource value: 0x7f050010
+			public const int resulttext = 2131034128;
+			
+			// aapt resource value: 0x7f05000a
+			public const int spinner1 = 2131034122;
+			
+			// aapt resource value: 0x7f050011
+			public const int statustext = 2131034129;
+			
+			// aapt resource value: 0x7f05000f
+			public const int switch1 = 2131034127;
+			
+			// aapt resource value: 0x7f05000b
+			public const int takepicb = 2131034123;
+			
+			// aapt resource value: 0x7f050003
+			public const int textView1 = 2131034115;
 			
 			// aapt resource value: 0x7f050009
-			public const int textView1 = 2131034121;
+			public const int textView2 = 2131034121;
 			
 			static Id()
 			{
@@ -107,7 +161,10 @@ namespace FingerDroid
 		{
 			
 			// aapt resource value: 0x7f030000
-			public const int Main = 2130903040;
+			public const int kecheng = 2130903040;
+			
+			// aapt resource value: 0x7f030001
+			public const int Main = 2130903041;
 			
 			static Layout()
 			{

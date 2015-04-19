@@ -12,33 +12,39 @@
         android:minHeight="25px"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:id="@+id/linearLayout2">
+        <TextView
+            android:text="当前课程："
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:textSize="20dp"
+            android:id="@+id/textView2" />
+        <Spinner
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:id="@+id/spinner1" />
+    </LinearLayout>
+    <LinearLayout
+        android:orientation="horizontal"
+        android:minWidth="25px"
+        android:minHeight="25px"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
         android:id="@+id/linearLayout1"
-        android:background="@android:color/white">
+        android:background="#ff66c065">
         <Button
             android:text="              抓取              "
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
-            android:id="@+id/takepicb" />
+            android:id="@+id/takepicb"
+            android:background="@drawable/barcode_local_pic_bg_normal" />
         <Button
             android:text="             录入              "
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
-            android:id="@+id/enrollbtn" />
+            android:id="@+id/enrollbtn"
+            android:background="@drawable/barcode_local_pic_bg_normal" />
     </LinearLayout>
-    <TextView
-        android:text="Text"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:textSize="20px"
-        android:id="@+id/statustext"
-        android:textColor="@android:color/holo_blue_light" />
-    <TextView
-        android:text="Text"
-        android:id="@+id/resulttext"
-        android:layout_width="match_parent"
-        android:textSize="30px"
-        android:layout_height="wrap_content"
-        android:textColor="@android:color/holo_red_light" />
     <RelativeLayout
         android:minWidth="25px"
         android:minHeight="25px"
@@ -72,6 +78,22 @@
             android:id="@+id/button1"
             android:layout_alignParentRight="true"
             android:typeface="normal"
-            android:background="#ff66ef64" />
+            android:background="#ff66c065" />
+        <TextView
+            android:text="Text"
+            android:id="@+id/resulttext"
+            android:textSize="30dp"
+            android:textColor="@android:color/holo_red_light"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_above="@id/imageView1" />
+        <TextView
+            android:text="Text"
+            android:textSize="20dp"
+            android:id="@+id/statustext"
+            android:textColor="@android:color/holo_blue_light"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_above="@id/resulttext" />
     </RelativeLayout>
 </LinearLayout>

@@ -24,12 +24,15 @@ using SourceAFIS.General;
 2.是否加个框圈定手指的范围。
 3.增加语音提醒。
 4.清晰度的检测，实现自动抓取。
+5.未考虑鲜见bug，例如文件读写前不检查是否已经存在文件，可能会导致出错和覆盖原文件
+6.每节课每天只能考勤一次
+7.输入的时间只能为24小时格式的XXXX;
 
 *******************************************************************************************/
 namespace FingerDroid
 {
 	[Activity(Label = "FingerDroid", MainLauncher = true, Icon = "@drawable/icon")]
-	public class MainActivity : Activity,Android.Hardware.Camera.IPictureCallback , Java.Lang.IRunnable ,TextToSpeech.IOnInitListener//, Android.Hardware.Camera.IPreviewCallback
+	public class MainActivity : Activity,Android.Hardware.Camera.IPictureCallback , Java.Lang.IRunnable ,TextToSpeech.IOnInitListener,View.IOnTouchListener//, Android.Hardware.Camera.IPreviewCallback
 	{
 		int DELAY_MILLIS = 1000;
 
@@ -40,13 +43,16 @@ namespace FingerDroid
 		ImageView iv = null;
 		Boolean isIdentify = true;
 		Boolean auto = true;
+		Boolean todayisbuld = false;
 		//Boolean detected = false;
 		string xuehao = null;
+		string nowLesson = "database";
 		Bitmap pics;
 		TextView tv = null;
 		TextView result = null;
 		TextView frameView = null;
 		List<MyPerson> database = null;
+		List<MyLesson> lessons = null;
 
 		TextToSpeech tts = null;
 	
@@ -68,53 +74,30 @@ namespace FingerDroid
 			// Create our Preview view and set it as the content of our activity.
 			mPreview = new CameraView(this);
 
-			LinearLayout.LayoutParams param = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WrapContent,
-													ViewGroup.LayoutParams.WrapContent);
-			param.BottomMargin = 10;
 			FrameLayout.LayoutParams tparams = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MatchParent,
 													ViewGroup.LayoutParams.WrapContent);//定义显示组件参数 
-			LinearLayout.LayoutParams full = new LinearLayout.LayoutParams (ViewGroup.LayoutParams.MatchParent,
-				                                 ViewGroup.LayoutParams.MatchParent);
-			
-			Button btn = new Button(this);
-			btn.Text = "              抓取              ";
-			Button enrollbtn = new Button (this);
-			enrollbtn.Text = "             录入              ";
 
-			tv = new TextView (this);
+			View mainView = View.Inflate (this, Resource.Layout.Main, null);
+			Button btn = mainView.FindViewById<Button> (Resource.Id.takepicb);
+			Button enrollbtn = mainView.FindViewById<Button> (Resource.Id.enrollbtn);
+			Button kechenbtn = mainView.FindViewById<Button> (Resource.Id.button1);
+
+			Spinner spinner = mainView.FindViewById<Spinner> (Resource.Id.spinner1);
+
+			tv = mainView.FindViewById<TextView> (Resource.Id.statustext);
 			tv.Text = "开始指纹识别。。。";
-			tv.SetTextColor(Android.Graphics.Color.LightSkyBlue);
-			tv.TextSize = 20;
-			result = new TextView (this);
-			result.SetTextColor (Android.Graphics.Color.IndianRed);
-			result.TextSize = 30;
+			result = mainView.FindViewById<TextView> (Resource.Id.resulttext);
 
-			View relaView = View.Inflate (this, Resource.Layout.Main, null);
-			Switch autoSw = relaView.FindViewById<Switch> (Resource.Id.switch1);
-			iv = relaView.FindViewById<ImageView> (Resource.Id.imageView1);
-			iv.SetImageResource (Resource.Drawable.Icon);
-			frameView = relaView.FindViewById<TextView> (Resource.Id.textView1);
-			//SeekBar sk = new SeekBar (this);
+			Switch autoSw = mainView.FindViewById<Switch> (Resource.Id.switch1);
+			iv = mainView.FindViewById<ImageView> (Resource.Id.imageView1);
+			frameView = mainView.FindViewById<TextView> (Resource.Id.textView1);
 
 			tts = new TextToSpeech (this, this);
 
 			FrameLayout fl = new FrameLayout(this);
-			LinearLayout ll = new LinearLayout(this);
-			ll.Orientation = Android.Widget.Orientation.Vertical;
-			LinearLayout ll2 = new LinearLayout (this);
-			RelativeLayout rl = new RelativeLayout (this);
-
-			ll2.AddView (btn, param);
-			ll2.AddView (enrollbtn, param);
-			//ll2.AddView (sk, tparams);
-
-			ll.AddView (ll2, tparams);
-			ll.AddView (tv, param);
-			ll.AddView (result, param);
-			ll.AddView (relaView, tparams);
 
 			fl.AddView(mPreview);
-			fl.AddView (ll, tparams);
+			fl.AddView (mainView);
 
 			//保持屏幕常亮
 			Window.SetFlags (WindowManagerFlags.KeepScreenOn,WindowManagerFlags.KeepScreenOn);
@@ -123,21 +106,75 @@ namespace FingerDroid
 			// Initialize SourceAFIS
 			Afis = new AfisEngine();
 			// Look up the probe using Threshold = 10
-			Afis.Threshold = 30;
+			Afis.Threshold = 25;
 			// Enroll some people
 			database = new List<MyPerson>();
+			lessons = new List<MyLesson> ();
 
-			//判断数据库是否存在
-			if (System.IO.File.Exists (ImagePath + "database.dat")) {
-				
-				tv.Text = "已载入数据库,开始识别。。。";
-				BinaryFormatter formatter = new BinaryFormatter();
-				Console.WriteLine ("Reloading database...");
-				using (FileStream stream = File.OpenRead (ImagePath + "database.dat"))
-					database = (List<MyPerson>)formatter.Deserialize (stream); 
+			if (System.IO.File.Exists (ImagePath + "lessons")) {
+				BinaryFormatter formatter = new BinaryFormatter ();
+				using (FileStream stream = File.OpenRead (ImagePath + "lessons"))
+					lessons = (List<MyLesson>)formatter.Deserialize (stream); 
+
 			} else {
-				tv.Text = "数据库中无数据，请录入指纹。。。";
+				tv.Text = "无课程，请添加课程。。。";
 			}
+
+			List<string> lessonname = new List<string> ();
+			foreach (MyLesson ml in lessons)
+				lessonname.Add (ml.name);
+			ArrayAdapter<string> adapter = new ArrayAdapter<string> (Application.Context, Android.Resource.Layout.SimpleSpinnerItem, lessonname);
+			spinner.Adapter = adapter;
+			spinner.ItemSelected += delegate(object sender, AdapterView.ItemSelectedEventArgs e) {
+				Spinner s = (Spinner) sender;
+				nowLesson = s.GetItemAtPosition(e.Position).ToString();
+
+				//判断数据库是否存在
+				if (System.IO.File.Exists (ImagePath + nowLesson + ".dat")) {
+
+					tv.Text = "已载入" + nowLesson + "数据库,开始识别。。。";
+					BinaryFormatter formatterr = new BinaryFormatter ();
+					Console.WriteLine ("Reloading database...");
+					using (FileStream stream = File.OpenRead (ImagePath + nowLesson + ".dat"))
+						database = (List<MyPerson>)formatterr.Deserialize (stream);
+				} else {
+					tv.Text = "数据库" + nowLesson + "中无数据，请录入指纹。。。";
+					database = new List<MyPerson>();
+				}
+
+				//判断本课程今天的考勤是否已经建立
+				todayisbuld =false;
+				foreach(MyLesson ml in lessons)
+				{
+					if(ml.name == nowLesson){
+						foreach (Attendance at in ml) 
+						{
+							//获取当前时间
+							DateTime dt = DateTime.Now;
+							//找到今天的考勤在数据库中的位置
+							if ((at.date.Year == dt.Year) && (at.date.Month == dt.Month) && (at.date.Day == dt.Day))
+								todayisbuld = true;
+						}
+					}
+				}
+
+				//如果没建立，就新建一个
+				if(!todayisbuld)
+				{
+					foreach(MyLesson ml in lessons)
+					{
+						if(ml.name == nowLesson){
+							//校准上课时间的日期到今天
+							DateTime dt = DateTime.Now;
+							ml.time.AddYears(dt.Year);
+							ml.time.AddMonths(dt.Month);
+							ml.time.AddDays(dt.Day);
+						}
+					}
+				}
+					
+						
+			};
 
 			btn.Click += delegate {
 				try{
@@ -165,6 +202,10 @@ namespace FingerDroid
 				}
 			};
 
+			btn.SetOnTouchListener (this);
+			enrollbtn.SetOnTouchListener (this);
+			kechenbtn.SetOnTouchListener (this);
+
 			btn.LongClick += delegate {
 				mCamera.AutoFocus(null);
 				//hdler.PostDelayed (this,DELAY_MILLIS);
@@ -184,6 +225,60 @@ namespace FingerDroid
 
 				});
 				alertDialog.Show();
+			};
+
+			kechenbtn.Click += delegate {
+				View base2 = View.Inflate(this,Resource.Layout.kecheng,null);
+				Button deletelesson = base2.FindViewById<Button>(Resource.Id.button3);
+				Button backbtn = base2.FindViewById<Button>(Resource.Id.button1);
+				Button addbtn = base2.FindViewById<Button>(Resource.Id.button2);
+
+				deletelesson.Click += delegate {
+
+				};
+
+				addbtn.Click += delegate {
+					EditText editT = new EditText(this);
+					EditText edittime = new EditText(this);
+					LinearLayout ll = new LinearLayout(this);
+					ll.Orientation = Orientation.Vertical;
+					ll.AddView(editT);
+					ll.AddView(edittime);
+					AlertDialog.Builder  alertDialog = new AlertDialog.Builder(this);
+					alertDialog.SetTitle("请输入课程名和时间：");
+					alertDialog.SetView(ll);
+					alertDialog.SetPositiveButton("确认",delegate {
+						//lessons.Add(editT.Text);
+						MyLesson myl = new MyLesson(editT.Text,Convert.ToDateTime(edittime.Text.Insert(2,":")));
+						lessons.Add(myl);
+						adapter.Add(editT.Text);
+						adapter.NotifyDataSetChanged();
+						Console.WriteLine ("添加课程...");
+						BinaryFormatter formatters = new BinaryFormatter ();
+						using (Stream stream = File.Open (ImagePath + "lessons", FileMode.OpenOrCreate))
+					    formatters.Serialize (stream, lessons);
+						tv.Text = "课程名为"+ editT.Text + "，请录入指纹。。。";
+					});
+					alertDialog.SetNegativeButton("取消",delegate {
+
+					});
+					alertDialog.Show();
+
+				};
+
+				//返回
+				backbtn.Click += delegate {
+					SetContentView(fl);
+				};
+
+				//如果开了自动，则关闭
+				if(autoSw.Checked)
+				{
+					hdler.RemoveCallbacks(this);
+					autoSw.Checked = false;
+				}
+				SetContentView(base2);
+
 			};
 
 			autoSw.CheckedChange += delegate {
@@ -351,6 +446,15 @@ namespace FingerDroid
 			}
 		} */
 
+		public bool OnTouch (View v, MotionEvent e)
+		{
+			if(e.Action.Equals(MotionEventActions.Down))
+				v.SetBackgroundResource(Resource.Drawable.barcode_local_pic_bg_pressed);
+			if(e.Action.Equals(MotionEventActions.Up))
+				v.SetBackgroundResource(Resource.Drawable.barcode_local_pic_bg_normal);
+			return false;
+		}
+
 		public void OnInit (OperationResult status)
 		{
 			/*如果装载TTS引擎成功*/  
@@ -399,7 +503,7 @@ namespace FingerDroid
 		void StartCore()
 		{
 			tts.Speak ("叮咚", QueueMode.Flush, null);
-			if (isIdentify && System.IO.File.Exists (ImagePath + "database.dat")) {  //指纹识别
+			if (isIdentify && System.IO.File.Exists (ImagePath + nowLesson + ".dat")) {  //指纹识别
 				// Enroll visitor with unknown identity
 				//MyPerson probe = Enroll(ImagePath + "t1.BMP", "##Visitor##");
 				tv.Text = "开始识别。。。";
@@ -426,11 +530,12 @@ namespace FingerDroid
 			} else if (xuehao != null) { //指纹录入
 				//database.Add(Enroll(ImagePath + "r1.BMP", xuehao));
 				database.Add (Enroll (pics, xuehao));
+				xuehao = null;
 
 				// Save the database to disk and load it back, just to try out the serialization
 				Console.WriteLine ("Saving database...");
 				BinaryFormatter formatter = new BinaryFormatter ();
-				using (Stream stream = File.Open (ImagePath + "database.dat", FileMode.OpenOrCreate))
+				using (Stream stream = File.Open (ImagePath + nowLesson + ".dat", FileMode.OpenOrCreate))
 					formatter.Serialize (stream, database);
 
 				isIdentify = true;
@@ -438,6 +543,29 @@ namespace FingerDroid
 			} else {
 				//Toast.MakeText(Application.Context,"请先录入指纹",ToastLength.Short).Show();
 			}
+		}
+
+		public void judgeTime(string name)
+		{
+			foreach(MyLesson ml in lessons)
+			{
+				//找到当前的课程在数据库中的位置
+				if (ml.name.Equals (nowLesson)) {
+					foreach (Attendance at in ml) 
+					{
+						//获取当前时间
+						DateTime dt = DateTime.Now;
+						//找到今天的考勤在数据库中的位置
+						if ((at.date.Year == dt.Year) && (at.date.Month == dt.Month) && (at.date.Day == dt.Day)) {
+							if (DateTime.Compare (dt, ml.time) > 0)
+								at.late.Add (name);
+							else
+								at.attend.Add (name);
+						}
+					}
+				}
+			}
+					
 		}
 
 		int i = 0;
@@ -466,7 +594,29 @@ namespace FingerDroid
 	{
 		public string Name;
 	}
-		
+
+	[Serializable]
+	class MyLesson
+	{
+		public string name;
+		public DateTime time;
+		public List<Attendance> attendance;
+
+		public MyLesson(string _name,DateTime _time)
+		{
+			name = _name;
+			time = _time;
+		}
+	}
+
+	[Serializable]
+	class Attendance
+	{
+		public DateTime date;
+		public List<string> attend;
+		public List<string> late;
+		public List<string> absent;
+	}
 
 
 }
