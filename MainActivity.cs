@@ -44,9 +44,12 @@ namespace FingerDroid
 		Boolean isIdentify = true;
 		Boolean auto = true;
 		Boolean todayisbuld = false;
+		//int lessonNum = 0;
 		//Boolean detected = false;
 		string xuehao = null;
 		string nowLesson = "database";
+		int nowLessonNum = 0;
+		int todayNum = 0;
 		Bitmap pics;
 		TextView tv = null;
 		TextView result = null;
@@ -144,35 +147,45 @@ namespace FingerDroid
 
 				//判断本课程今天的考勤是否已经建立
 				todayisbuld =false;
-				foreach(MyLesson ml in lessons)
+				for(int i = 0; i < lessons.Count; i++)
 				{
-					if(ml.name == nowLesson){
-						foreach (Attendance at in ml) 
+					if(lessons[i].name.Equals(nowLesson))
+					{	
+						//获取当前课程的数据库中的标号
+						nowLessonNum = i;
+						for(int j = 0; j < lessons[i].attendance.Count; j++)
 						{
-							//获取当前时间
-							DateTime dt = DateTime.Now;
-							//找到今天的考勤在数据库中的位置
-							if ((at.date.Year == dt.Year) && (at.date.Month == dt.Month) && (at.date.Day == dt.Day))
+							DateTime nowTime = DateTime.Now;
+							if((lessons[i].attendance[j].date.Year == nowTime.Year)
+								&&(lessons[i].attendance[j].date.Month == nowTime.Month)
+								&&(lessons[i].attendance[j].date.Day == nowTime.Day)
+							){
 								todayisbuld = true;
-						}
+								//如果本课程今天已经建立了考勤，则获取当前考勤的数据库标号
+								todayNum = j;
+								//校准考勤时间的日期到今天的课程设置时间，方便比较
+								//lessons[nowLessonNum].time = new DateTime(nowTime.Year,nowTime.Month,nowTime.Day,
+								//	lessons[nowLessonNum].time.Hour,lessons[nowLessonNum].time.Minute,0);
+							}
+								}
 					}
 				}
 
 				//如果没建立，就新建一个
 				if(!todayisbuld)
 				{
-					foreach(MyLesson ml in lessons)
-					{
-						if(ml.name == nowLesson){
-							//校准上课时间的日期到今天
-							DateTime dt = DateTime.Now;
-							ml.time.AddYears(dt.Year);
-							ml.time.AddMonths(dt.Month);
-							ml.time.AddDays(dt.Day);
-						}
-					}
+					DateTime nowTime = DateTime.Now;
+					//校准考勤时间的日期到今天的课程设置时间，方便比较
+					//lessons[nowLessonNum].time = new DateTime(nowTime.Year,nowTime.Month,nowTime.Day,
+					//	lessons[nowLessonNum].time.Hour,lessons[nowLessonNum].time.Minute,0);
+
+					//新建今天的考勤
+					Attendance att =new Attendance(new DateTime(nowTime.Year,nowTime.Month,nowTime.Day,
+						lessons[nowLessonNum].time.Hour,lessons[nowLessonNum].time.Minute,0));
+					lessons[nowLessonNum].attendance.Add(att);
+					todayNum = lessons[nowLessonNum].attendance.IndexOf(att);
+					todayisbuld = true;
 				}
-					
 						
 			};
 
@@ -208,6 +221,8 @@ namespace FingerDroid
 
 			btn.LongClick += delegate {
 				mCamera.AutoFocus(null);
+				tv.Text = lessons[nowLessonNum].attendance[todayNum].attend.Count+"";
+				result.Text = lessons[nowLessonNum].attendance[todayNum].late.Count+"";
 				//hdler.PostDelayed (this,DELAY_MILLIS);
 			};
 
@@ -232,9 +247,12 @@ namespace FingerDroid
 				Button deletelesson = base2.FindViewById<Button>(Resource.Id.button3);
 				Button backbtn = base2.FindViewById<Button>(Resource.Id.button1);
 				Button addbtn = base2.FindViewById<Button>(Resource.Id.button2);
+				ListView listLesson = base2.FindViewById<ListView>(Resource.Id.listView1);
+
+				//SimpleAdapter sAdapter = new SimpleAdapter(Application.Context,
 
 				deletelesson.Click += delegate {
-
+					
 				};
 
 				addbtn.Click += delegate {
@@ -312,7 +330,9 @@ namespace FingerDroid
 		protected override void OnPause()
 		{
 			base.OnPause();
-
+			BinaryFormatter formatters = new BinaryFormatter ();
+			using (Stream stream = File.Open (ImagePath + "lessons", FileMode.OpenOrCreate))
+				formatters.Serialize (stream, lessons);
 			if (mCamera != null)
 			{
 				mPreview.PreviewCamera = null;
@@ -320,6 +340,8 @@ namespace FingerDroid
 				mCamera = null;
 			}
 		}
+
+		
 
 		//初始化相机  
 		private void initCamera()
@@ -525,6 +547,7 @@ namespace FingerDroid
 					Console.WriteLine ("Similarity score between {0} and {1} = {2:F3}", probe.Name, match.Name, score);
 					tv.Text = "识别完成。。。";
 					tts.Speak (match.Name, QueueMode.Flush, null);
+					judgeTime (match.Name);
 					result.Text = "身份：" + match.Name + "\n匹配分数：" + score;
 				}
 			} else if (xuehao != null) { //指纹录入
@@ -547,25 +570,26 @@ namespace FingerDroid
 
 		public void judgeTime(string name)
 		{
-			foreach(MyLesson ml in lessons)
-			{
-				//找到当前的课程在数据库中的位置
-				if (ml.name.Equals (nowLesson)) {
-					foreach (Attendance at in ml) 
-					{
-						//获取当前时间
-						DateTime dt = DateTime.Now;
-						//找到今天的考勤在数据库中的位置
-						if ((at.date.Year == dt.Year) && (at.date.Month == dt.Month) && (at.date.Day == dt.Day)) {
-							if (DateTime.Compare (dt, ml.time) > 0)
-								at.late.Add (name);
-							else
-								at.attend.Add (name);
-						}
-					}
+			Boolean notindatabase = true;
+			//检测此人是否重复考勤
+			foreach (string s in lessons[nowLessonNum].attendance[todayNum].attend)
+				if (s.Equals (name))
+					notindatabase = false;
+			foreach (string s in lessons[nowLessonNum].attendance[todayNum].late)
+				if (s.Equals (name))
+					notindatabase = false;
+			if (notindatabase) {
+				//获取当前时间
+				DateTime dt = DateTime.Now;
+				Attendance at = lessons [nowLessonNum].attendance [todayNum];
+				if (DateTime.Compare (dt, at.date) > 0) {
+					at.late.Add (name);
+					tv.Text = "late";
+				} else {
+					at.attend.Add (name);
+					tv.Text = "attend";
 				}
 			}
-					
 		}
 
 		int i = 0;
@@ -606,6 +630,7 @@ namespace FingerDroid
 		{
 			name = _name;
 			time = _time;
+			attendance = new List<Attendance> ();
 		}
 	}
 
@@ -616,6 +641,14 @@ namespace FingerDroid
 		public List<string> attend;
 		public List<string> late;
 		public List<string> absent;
+
+		public Attendance(DateTime _date)
+		{
+			date = _date;
+			attend = new List<string> ();
+			late = new List<string> ();
+			absent = new List<string> ();
+		}
 	}
 
 

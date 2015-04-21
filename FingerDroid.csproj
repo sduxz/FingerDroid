@@ -172,6 +172,7 @@
     <AndroidResource Include="Resources\drawable-xhdpi\barcode_local_pic_bg_normal.png" />
     <AndroidResource Include="Resources\drawable-xhdpi\barcode_local_pic_bg_pressed.png" />
     <AndroidResource Include="Resources\layout\kecheng.xml" />
+    <AndroidResource Include="Resources\layout\lessonList.xml" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Novell\Novell.MonoDroid.CSharp.targets" />
 </Project>
